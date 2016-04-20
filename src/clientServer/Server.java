@@ -1,6 +1,6 @@
-package clientServer;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -49,6 +50,8 @@ public class Server extends JPanel{
 		
 		
 	}
+	private JLabel playerInfo;
+	private String playerString = "";
 	public void setGUI(){
 		showUser = new JTextArea();
 		showUser.setPreferredSize(new Dimension(300,300));
@@ -59,6 +62,10 @@ public class Server extends JPanel{
 		showScore = new JButton("showScore");
 		this.add(showScore,BorderLayout.SOUTH);
 		this.setVisible(true);
+		
+		playerInfo = new JLabel(playerString);
+		
+		this.add(playerInfo,BorderLayout.EAST);
 	}
 	public void startPlay() throws IOException{
 		while(true){
@@ -173,7 +180,15 @@ public class Server extends JPanel{
 		            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 		            
 	            while ((Server.inputLine = in.readLine()) != null) {
-	            	if(Server.inputLine.contains("getScore()")){
+	            	if(Server.inputLine.contains("testScore()")){
+	            		String temp = Server.inputLine;
+	            		temp = temp.substring(11);
+	            		Server.showUser.append(temp+"\n");
+	            		playerString = temp;
+	            		playerInfo.setText(playerString);
+	            		sendToPair(lastMsg);
+	            	}
+	            	else if(Server.inputLine.contains("getScore()")){
 	            		String temp = Server.inputLine;
 	            		temp = temp.substring(10);
 	            		Server.showUser.append(temp+"\n");
@@ -220,10 +235,4 @@ public class Server extends JPanel{
 			}
 		}	
 	}
-	protected static void randomTurn() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	
 }
