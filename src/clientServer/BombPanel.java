@@ -1,5 +1,6 @@
 package clientServer;
 import java.net.*;
+import java.util.concurrent.Executors;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.io.*;
@@ -10,6 +11,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
@@ -17,9 +23,9 @@ import javax.swing.border.LineBorder;
 public class BombPanel extends JPanel{
 	private boolean isBomb;
 	private boolean isClickable;
-	private BufferedImage setImage = null;
-	private BufferedImage bombImg;
-	private BufferedImage freeImg;
+	private Image setImage = null;
+	private Image bombImg;
+	private Image freeImg;
 	private JLabel showImage;
 	private ImageIcon question;
 	private JButton button;
@@ -30,13 +36,15 @@ public class BombPanel extends JPanel{
 		isClickable = true;
 		Image ques = null;
 		try {
-			ques = ImageIO.read(new File("question2.gif"));
-			bombImg = ImageIO.read(new File("bomb.gif"));
-			freeImg = ImageIO.read(new File("free.gif"));
+			ques = ImageIO.read(new File("block.gif"));
+			bombImg = ImageIO.read(new File("bombex.gif"));
+			freeImg = ImageIO.read(new File("d.gif"));
 		} catch (IOException e) {
 			System.out.println(e.toString());
 		}
 		Image newImg = ques.getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+		bombImg = bombImg.getScaledInstance(150,150, Image.SCALE_SMOOTH);
+		freeImg = freeImg.getScaledInstance(150,150, Image.SCALE_SMOOTH);
 		question = new ImageIcon(newImg);
 		button = new JButton();
 		Border thickBorder = new LineBorder(Color.WHITE, 1);
@@ -51,8 +59,10 @@ public class BombPanel extends JPanel{
 
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
+				saEffect();
 				button.setVisible(false);
 				showImage.setVisible(true);
+				
 				isClickable=false;
 				//System.out.println((isBomb? "bomb": "free" ) + " Score:" + getScore());
 			}
@@ -60,6 +70,44 @@ public class BombPanel extends JPanel{
 		this.add(button);
 		this.randomBomb();
 		
+	}
+	
+	public void saEffect(){
+		//Main.insertBGM("button-30.wav");
+		Executors.newSingleThreadExecutor().execute(new Runnable(){
+			@Override
+			
+			public void run() {
+				float alpha = 0.0f;
+				Graphics g = button.getGraphics();
+				if(g==null)return;
+				Graphics2D g2d = (Graphics2D) g;
+				g2d.setColor(Color.red);
+				Image t = null;
+		try {
+					t = ImageIO.read(new File("boom.png"));
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				while(alpha <=1.0f){
+					g2d.setComposite(AlphaComposite.getInstance(
+							AlphaComposite.SRC_OVER, alpha));
+					g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+					g2d.setColor(Color.red);
+					//g2d.fillOval(0, 0, 50, 50);
+					g2d.drawImage(t, 0, 0, button.getWidth(),button.getHeight(), null);
+					alpha += 0.02f;
+					try {
+						Thread.sleep(40);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				//	repaint();
+				}
+				repaint();
+			}
+		});
 	}
 	
 	public void setBomb(boolean bomb){

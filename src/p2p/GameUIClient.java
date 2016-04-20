@@ -224,12 +224,22 @@ public class GameUIClient extends JPanel implements Runnable {
 		//out.println("NAME:"+this.player.getName());
 	}
 	public void promptMineAmount(){
-		String mine = JOptionPane.showInputDialog("Please Specify your number of mine <36");
-		if(mine.equals("")){
-			maxMine = 11;
-		} else {
-			this.maxMine = Integer.parseInt(mine);
+		String[] options = {"OK"};
+		JPanel panel = new JPanel();
+		JLabel lbl = new JLabel("Please Specify your number of mine < 36 ");
+		JTextField txt = new JTextField(10);
+		panel.add(lbl);
+		panel.add(txt);
+		int mine = JOptionPane.showOptionDialog(null, panel, "The Title", JOptionPane.NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options , options[0]);
+		if(mine == 0){
+			if(txt.getText().equals("")){
+				maxMine = 11;
+			} else {
+				this.maxMine = Integer.parseInt(txt.getText());
+			}
+			
 		}
+		
 		
 		
 	}
