@@ -49,7 +49,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	BufferedReader in;
 	Socket con;
 	Thread outputThread;
-
+	private int totaltime = 0;
 	Image bgImage = null;
 	///SERVER PART
 	boolean isServer;
@@ -616,6 +616,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			}
 		} else {
 			//this.opponentName.setText("Your Opponent Turn");
+			this.totaltime = this.totaltime + seconds;
 			this.timerLabel.setText("Wait:");
 			this.turnTimer.stop();
 			GameUIClient.seconds = 10;

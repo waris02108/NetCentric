@@ -53,13 +53,18 @@ public class MyMineWelcome extends JPanel {
 	public void setGUI() {
 		setLayout(new BorderLayout());
 		Image mine = null;
+		Image createroom = null;
+		Image joinserver = null;
 		try {
 			mine = ImageIO.read(new File("image/newlogo.gif"));
+			createroom = ImageIO.read(new File("image/createroom.gif"));
+			joinserver = ImageIO.read(new File("image/joinserver.gif"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		Image newImg = mine.getScaledInstance(450, 300, Image.SCALE_SMOOTH);
+		
 		ImageIcon min = new ImageIcon(newImg);
 		JLabel mineLogo = new JLabel(min);
 		
@@ -75,7 +80,11 @@ public class MyMineWelcome extends JPanel {
 		
 		add(title,BorderLayout.NORTH);
 		panel = new JPanel(new GridLayout(1,2));
-		clientButton = new JButton("Join Server");
+		clientButton = new JButton();
+		clientButton.setPreferredSize(new Dimension(250,250));
+		createroom = createroom.getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+		joinserver = joinserver.getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+		clientButton.setIcon(new ImageIcon(joinserver));
 		clientButton.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent arg0) {
@@ -123,7 +132,9 @@ public class MyMineWelcome extends JPanel {
 		
 		
 		
-		serverButton = new JButton("Create Room");
+		serverButton = new JButton();
+		serverButton.setPreferredSize(new Dimension(250,250));
+		serverButton.setIcon(new ImageIcon(createroom));
 		serverButton.addActionListener(new ActionListener(){
 
 			@Override
@@ -141,7 +152,7 @@ public class MyMineWelcome extends JPanel {
 		textView.setForeground(Color.CYAN);
 		textView.setBackground(Color.BLACK);
 		textView.setFont(new Font("Arial",Font.ITALIC,20));
-		this.setPreferredSize(new Dimension(500,500));
+		this.setPreferredSize(new Dimension(500,550));
 		this.setVisible(true);
 	}
 	
