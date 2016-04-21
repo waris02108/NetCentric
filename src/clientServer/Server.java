@@ -35,7 +35,6 @@ public class Server extends JPanel{
 	static String inputLine;
 	static JTextArea showUser;
 	JButton reset;
-	JButton showScore;
 	static ServerSocket server;
 
 	private String lastMsg;
@@ -55,8 +54,6 @@ public class Server extends JPanel{
 		this.add(scroll);
 		reset = new JButton("RESET");
 		this.add(reset,BorderLayout.SOUTH);
-		showScore = new JButton("showScore");
-		this.add(showScore,BorderLayout.SOUTH);
 		this.setVisible(true);
 		
 		playerInfo = new JLabel(playerString);
@@ -87,10 +84,7 @@ public class Server extends JPanel{
 		mainFrame.setSize(new Dimension(400,400));
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setVisible(true);
-		s.startPlay();
-		Main.player1 = new Player("Por");
-		Main.player2 = new Player("Ezreal");
-		
+		s.startPlay();		
 	}
 	//server for each one to handle dataflow
 	class TestRunnable implements Runnable{
@@ -146,19 +140,10 @@ public class Server extends JPanel{
 		            PrintWriter out = new PrintWriter(con.getOutputStream(),true);
 		            reset.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent arg0) {
-							sendToPair("RESET");
+							sendToPair("ResetCommandFromServer");
 						}	
 					});
-		            showScore.addActionListener(new ActionListener(){
-						@Override
-						public void actionPerformed(ActionEvent arg0) {
-							sendToPair("getScore");
-						}
-		            });
 		            Server.clientList.add(out);
-		    //        System.out.println(TestServer.clientList);
-		            //broadcast("Client #"+id+" is connected.");
-		          
 		            if(Server.numClients <2){
 		            	out.println("Waiting for Another Player");
 		            } 
@@ -169,27 +154,12 @@ public class Server extends JPanel{
 		            	out.println("Start"); 
 		            	//Send random Turn
 		            	this.randomTurn();
-		            	
 		            }
-		           
 		            Server.showUser.append("Client #"+id+" is connected.\n");
 		            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 		            
 	            while ((Server.inputLine = in.readLine()) != null) {
-	            	if(Server.inputLine.contains("testScore()")){
-	            		String temp = Server.inputLine;
-	            		temp = temp.substring(11);
-	            		Server.showUser.append(temp+"\n");
-	            		playerString = temp;
-	            		playerInfo.setText(playerString);
-	            		sendToPair(lastMsg);
-	            	}
-	            	else if(Server.inputLine.contains("getScore()")){
-	            		String temp = Server.inputLine;
-	            		temp = temp.substring(10);
-	            		Server.showUser.append(temp+"\n");
-	            		sendToPair(lastMsg);
-	            	} else if(Server.inputLine.startsWith("F")){
+	            	if(Server.inputLine.startsWith("F")){
 	            		sendToPair(Server.inputLine);
 	            		lastMsg = Server.inputLine;
 	            	} else if (Server.inputLine.equals("NextTurn")){
@@ -199,9 +169,10 @@ public class Server extends JPanel{
 	            	   //Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");  
 	            		sendToPair("Opponent"+Server.inputLine.substring(Server.inputLine.indexOf("NAME:")+5));
 	            		lastMsg = "Opponent"+Server.inputLine.substring(Server.inputLine.indexOf("NAME:")+5);
-	            	}
-	            	
-	            	else {
+	            	} else if (Server.inputLine.equals("Reset")){
+	            		out.println("Reset");
+	            		this.randomTurn();
+	            	} else {
 		              //Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");
 		              //broadcast(Server.inputLine);
 		              sendToPair(Server.inputLine);

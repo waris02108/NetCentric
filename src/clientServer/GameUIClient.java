@@ -101,8 +101,8 @@ public class GameUIClient extends JPanel implements Runnable {
 		playerPanel.add(playerScore);
 
 		JPanel opponentPanel = new JPanel(new GridLayout(2, 1));
-		opponentName = new JLabel("Player2");
-		opponentScore = new JLabel("Score:0");
+		opponentName = new JLabel("Player2:");
+		opponentScore = new JLabel("Score:" + 0);
 		opponentPanel.add(opponentName);
 		opponentPanel.add(opponentScore);
 
@@ -129,10 +129,6 @@ public class GameUIClient extends JPanel implements Runnable {
 		JOptionPane.showMessageDialog(this, "Welcome " + this.player.getName(),
 				"Welcome", JOptionPane.INFORMATION_MESSAGE);
 		// out.println("NAME:"+this.player.getName());
-	}
-
-	private void synchronizeStart() {
-
 	}
 
 	private void createNewGridPanel() {
@@ -239,7 +235,7 @@ public class GameUIClient extends JPanel implements Runnable {
 				this.playerScore.setText("Score:" + player.getScore());
 				this.mineCount++;
 				// out.println("Score"+player.getScore());
-				out.println("testScore()"+player.getName()+": "+player.getScore());
+				//out.println("testScore()"+player.getName()+": "+player.getScore());
 			} else {
 				this.opponent.addScore();
 				this.opponentScore.setText("Score:" + this.opponent.getScore());
@@ -305,7 +301,6 @@ public class GameUIClient extends JPanel implements Runnable {
 	}
 
 	public void setFieldTurn() {
-
 		if (myTurn) {
 			// this.opponentName.setText("Your Turn");
 			this.turnTimer.restart();
@@ -325,18 +320,6 @@ public class GameUIClient extends JPanel implements Runnable {
 		
 	}
 
-	public void randomTurn() {
-		int random = (int) (Math.random() * 1.99999);
-		if (random == 0) {
-			// you go 2nd
-			this.myTurn = false;
-		} else {
-			// you go first
-			this.myTurn = true;
-		}
-		this.setFieldTurn();
-	}
-
 	public void run() {
 
 		// TODO Auto-generated method stub
@@ -346,21 +329,16 @@ public class GameUIClient extends JPanel implements Runnable {
 				String indexString = in.readLine();
 				System.out.println("In run" + indexString);
 				if (isReset(indexString)) {
-					bombGrid.setVisible(false);
-					createBombGrid();
-					add(bombGrid, BorderLayout.CENTER);
-					repaint();
-					// initial score and timer
 					turnTimer.stop();
 					seconds = 10;
 					this.resetScore();
-					this.randomTurn();
-					// start new game
-					this.isOpponentNull = true;
-					sendSameBombGrid();
-				} else if (isAskScore(indexString)) {
-					out.println("getScore()" + player.getName() + ": "
-							+ player.getScore());
+				} else if (indexString.equals("ResetCommandFromServer")){
+					bombGrid.setVisible(false);
+					createBombGrid();
+					out.println("Reset");
+					add(bombGrid,BorderLayout.CENTER);
+					bombGrid.setVisible(true);
+					resetScore();
 				} else if (indexString.equals("Start")) {
 					this.isOpponentNull = true;
 					sendSameBombGrid();
@@ -438,13 +416,6 @@ public class GameUIClient extends JPanel implements Runnable {
 
 	public boolean isReset(String indexString) throws IOException {
 		if (indexString.equals("RESET"))
-			return true;
-		else
-			return false;
-	}
-
-	public boolean isAskScore(String indexString) throws IOException {
-		if (indexString.equals("getScore"))
 			return true;
 		else
 			return false;
