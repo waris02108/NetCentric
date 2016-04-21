@@ -327,13 +327,12 @@ public class GameUIClient extends JPanel implements Runnable {
 		while (stillOn) {
 			try {
 				String indexString = in.readLine();
-				System.out.println("In run" + indexString);
+				System.out.println("In run: " + indexString);
 				if (indexString.equals("Reset")){
 					turnTimer.stop();
 					seconds = 10;
 					this.resetScore();
 				}
-				
 				else if (indexString.equals("ResetCommandFromServer")){
 					bombGrid.setVisible(false);
 					createBombGrid();
@@ -414,12 +413,5 @@ public class GameUIClient extends JPanel implements Runnable {
 		s.tempPromptName();
 		s.start();
 
-	}
-
-	public boolean isReset(String indexString) throws IOException {
-		if (indexString.equals("RESET"))
-			return true;
-		else
-			return false;
 	}
 }

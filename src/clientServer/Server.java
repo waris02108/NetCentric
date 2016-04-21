@@ -37,7 +37,6 @@ public class Server extends JPanel{
 	JButton reset;
 	static ServerSocket server;
 
-	private String lastMsg;
 	public Server() throws IOException{
 		setGUI();
 		InetAddress addrhost = InetAddress.getByName("127.0.0.1");;
@@ -156,31 +155,24 @@ public class Server extends JPanel{
 		            	this.randomTurn();
 		            }
 		            Server.showUser.append("Client #"+id+" is connected.\n");
+		            Server.showUser.append("Concurrent Online: "+numClients+"\n");
 		            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		            
 	            while ((Server.inputLine = in.readLine()) != null) {
 	            	if(Server.inputLine.startsWith("F")){
 	            		sendToPair(Server.inputLine);
-	            		lastMsg = Server.inputLine;
 	            	} else if (Server.inputLine.equals("NextTurn")){
 	            		sendToPair("TimeYourTurn");
-	            		lastMsg = "TimeYourTurn";
 	            	} else if (Server.inputLine.startsWith("NAME:")){
 	            	   //Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");  
 	            		sendToPair("Opponent"+Server.inputLine.substring(Server.inputLine.indexOf("NAME:")+5));
-	            		lastMsg = "Opponent"+Server.inputLine.substring(Server.inputLine.indexOf("NAME:")+5);
 	            	} else if (Server.inputLine.equals("Reset")){
-	            		
 	            		this.randomTurn();
 	            	} else {
-		              //Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");
-		              //broadcast(Server.inputLine);
 		              sendToPair(Server.inputLine);
-		              lastMsg = Server.inputLine;
 	            	}
-	            	
 		         }
 				System.out.println("Client#"+id+" has left.");
+					numClients--;
 		            out.close();
 		            in.close();
 		            con.close();
