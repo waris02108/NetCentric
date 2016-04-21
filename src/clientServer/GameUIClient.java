@@ -322,6 +322,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			}
 		}
 		repaint();
+		
 	}
 
 	public void randomTurn() {
@@ -351,7 +352,7 @@ public class GameUIClient extends JPanel implements Runnable {
 					repaint();
 					// initial score and timer
 					turnTimer.stop();
-					this.seconds = 10;
+					seconds = 10;
 					this.resetScore();
 					this.randomTurn();
 					// start new game

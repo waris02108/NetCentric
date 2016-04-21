@@ -1,3 +1,4 @@
+package clientServer;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -36,12 +37,7 @@ public class Server extends JPanel{
 	JButton reset;
 	JButton showScore;
 	static ServerSocket server;
-	private ObjectInputStream in;
-	private Socket conn;
-	private String host;
-	private int port;
-	private ClientThread[] client;
-	private Thread serverThread;
+
 	private String lastMsg;
 	public Server() throws IOException{
 		setGUI();

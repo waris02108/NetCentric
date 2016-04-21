@@ -5,7 +5,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.io.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -39,7 +41,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	Player opponent;
 	boolean isConnected;
 	Timer turnTimer;
-	boolean isOpponentNull = false;
+	boolean isOpponentNull = true;
 	int mineCount = 0;
 //	ObjectOutputStream out;
 //	ObjectInputStream in;
@@ -47,15 +49,17 @@ public class GameUIClient extends JPanel implements Runnable {
 	BufferedReader in;
 	Socket con;
 	Thread outputThread;
-	boolean resetGrid = false;
+
+	Image bgImage = null;
 	///SERVER PART
 	boolean isServer;
 	ServerSocket server;
 	public GameUIClient() throws IOException{
 		
 		super();
+		bgImage = ImageIO.read(new File("image/board.gif"));
 		//player = new Player("Por");
-		
+		repaint();
 		isConnected = false;
 		setGUI();
 		
@@ -63,6 +67,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	}
 	public GameUIClient(boolean isServer) throws IOException {
 		super();
+		
 		isConnected = false;
 		this.isServer = isServer;
 		setGUI();
@@ -150,7 +155,7 @@ public class GameUIClient extends JPanel implements Runnable {
 
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				resetGrid = true;
+				
 				bombGrid.setVisible(false);
 				createBombGrid();
 				out.println("Reset");
@@ -173,45 +178,201 @@ public class GameUIClient extends JPanel implements Runnable {
 	}
 	
 	private void createGameHUD(){
-		gameHUD = new JPanel();
-		gameHUD.setLayout(new GridLayout(4,1));
+		
+		
+		
+		gameHUD = new JPanel(){
+			 @Override
+			   public void paintComponent(Graphics g) {
+			    super.paintComponent(g);
+			   
+			    	setBackground(Color.black);
+			   }
+			   
+			 
+		};	
+		gameHUD.setLayout(new GridLayout(5,1));
 		JPanel profile = new JPanel();
 		profile.setLayout(new GridLayout(1,2));
-		JPanel playerPanel = new JPanel(new GridLayout(2,1));
-		playerName = new JLabel("");
-		playerScore = new JLabel("Score:"+0);
+		Image home = null;
+		Image scoreboard = null;
 		
-		playerPanel.add(playerName);
-		playerPanel.add(playerScore);
+		Image box = null;
+		Image score = null;	
+		Image away = null;
+		Image totalmine = null;
+		Image mineleft = null;
+		Image timerB = null;
+		Image secondsLeft = null;
+		try {
+			home = ImageIO.read(new File("image/home.png"));
+			away = ImageIO.read(new File("image/away.png"));
+			scoreboard = ImageIO.read(new File("image/scoreboard.png"));
+			score = ImageIO.read(new File("image/score.gif"));
+			box = ImageIO.read(new File("image/box1.gif"));
+			totalmine = ImageIO.read(new File("image/totalmine.gif"));
+			mineleft = ImageIO.read(new File("image/mineleft.gif"));
+			timerB = ImageIO.read(new File("image/timer.gif"));
+			secondsLeft = ImageIO.read(new File("image/secondsleft.gif"));
+		} catch (IOException e) {
+			System.out.println(e.toString());
+		}
 		
-		JPanel opponentPanel = new JPanel(new GridLayout(2,1));
+		JLabel playerBanner = new JLabel();
+		timerB = timerB.getScaledInstance(150, 60, Image.SCALE_SMOOTH);
+		totalmine = totalmine.getScaledInstance(150, 60, Image.SCALE_SMOOTH);
+		mineleft = mineleft.getScaledInstance(150, 60,Image.SCALE_SMOOTH);
+		home = home.getScaledInstance(150, 60, Image.SCALE_SMOOTH);
+		box = box.getScaledInstance(75, 75, Image.SCALE_SMOOTH);
+		secondsLeft = secondsLeft.getScaledInstance(150, 75, Image.SCALE_SMOOTH);
+		playerBanner.setIcon(new ImageIcon(home));
+		JPanel playerNamePanel = new JPanel(new BorderLayout());
+		
+		playerName = new JLabel("Player1");
+		playerName.setFont(new Font("Arial",Font.ITALIC,20));
+		playerName.setForeground(Color.WHITE);
+		playerName.setIcon(new ImageIcon(box));
+		playerName.setHorizontalTextPosition(JLabel.CENTER);
+		playerNamePanel.add(playerBanner,BorderLayout.NORTH);
+		playerNamePanel.add(playerName,BorderLayout.CENTER);
+		
+		playerName.setHorizontalAlignment(JLabel.CENTER);
+		playerBanner.setHorizontalAlignment(JLabel.CENTER);
+		
+		
+		
+		
+		JLabel scoreBanner = new JLabel();
+		
+		score = score.getScaledInstance(150, 60, Image.SCALE_SMOOTH);
+		playerScore = new JLabel("0");
+		playerScore.setForeground(Color.WHITE);
+		playerScore.setFont(new Font("Arial",Font.ITALIC,20));
+		playerScore.setIcon(new ImageIcon(box));
+		playerScore.setHorizontalTextPosition(JLabel.CENTER);
+		scoreBanner.setIcon(new ImageIcon(score));
+		JPanel scorePanelPlayer = new JPanel(new BorderLayout());
+		scorePanelPlayer.add(scoreBanner,BorderLayout.NORTH);
+		scorePanelPlayer.add(playerScore,BorderLayout.CENTER);
+		
+		scoreBanner.setHorizontalAlignment(JLabel.CENTER);
+		playerScore.setHorizontalAlignment(JLabel.CENTER);
+		scorePanelPlayer.setOpaque(false);
+	
+		
+		
+		
+		
+
+		
+		JLabel opponentBanner = new JLabel();
+		
+		away = away.getScaledInstance(150, 60, Image.SCALE_SMOOTH);
+		opponentBanner.setIcon(new ImageIcon(away));
+		JPanel opponentNamePanel = new JPanel(new BorderLayout());
 		opponentName = new JLabel("Player2");
-		opponentScore = new JLabel("Score:0");
-		opponentPanel.add(opponentName);
-		opponentPanel.add(opponentScore);
+		opponentName.setForeground(Color.WHITE);
+		opponentName.setFont(new Font("Arial",Font.ITALIC,20));
+		opponentName.setIcon(new ImageIcon(box));
+		opponentName.setHorizontalTextPosition(JLabel.CENTER);
+		opponentNamePanel.add(opponentBanner,BorderLayout.NORTH);
+		opponentNamePanel.add(opponentName,BorderLayout.CENTER);
+		opponentName.setHorizontalAlignment(JLabel.CENTER);
+		opponentBanner.setHorizontalAlignment(JLabel.CENTER);
 		
-		profile.add(playerPanel);
-		profile.add(opponentPanel);
+		opponentScore = new JLabel("0");
+		opponentScore.setForeground(Color.WHITE);
+		opponentScore.setFont(new Font("Arial",Font.ITALIC,20));
+		opponentScore.setPreferredSize(new Dimension(75,75));
+		opponentScore.setIcon(new ImageIcon(box));
+		opponentScore.setHorizontalTextPosition(JLabel.CENTER);
+		JLabel scoreBanner2 = new JLabel(new ImageIcon(score));
+		JPanel opponentScorePanel = new JPanel(new BorderLayout());
+		opponentScorePanel.add(scoreBanner2,BorderLayout.NORTH);
+		opponentScorePanel.add(opponentScore,BorderLayout.CENTER);
+		
+		scoreBanner2.setHorizontalAlignment(JLabel.CENTER);
+		opponentScore.setHorizontalAlignment(JLabel.CENTER);
+		opponentScorePanel.setOpaque(false);
+		profile.setOpaque(false);
+		profile.add(playerNamePanel);
+		profile.add(opponentNamePanel);
+		playerNamePanel.setOpaque(false);
+		opponentNamePanel.setOpaque(false);
 		gameHUD.add(profile);
 		
+		
+		//JPanel scorePanel = new JPanel(new BorderLayout());
+		
+		scoreboard = scoreboard.getScaledInstance(300, 75, Image.SCALE_SMOOTH);
+		
+		
+		//scorePanel.add(scoreboardBanner,BorderLayout.NORTH);
+		JPanel scorePlayerOpponent = new JPanel(new GridLayout(1,2));
+		scorePlayerOpponent.add(scorePanelPlayer);
+		scorePlayerOpponent.add(opponentScorePanel);
+		//scorePanel.add(scorePlayerOpponent,BorderLayout.CENTER);
+		scorePlayerOpponent.setOpaque(false);
+		gameHUD.add(scorePlayerOpponent);
+		//gameHUD.add(scorePanel);
+		
+		
+		
+		
 		//Mine count + Maximum Mine
-		JPanel minePanel = new JPanel();
-		this.mineLeft = new JLabel("Mine Left:"+(this.maxMine-this.mineCount));
-		this.maxMineCount = new JLabel("Total Mine:"+this.maxMine);
-		minePanel.add(mineLeft);
-		minePanel.add(maxMineCount);
+		JPanel minePanel = new JPanel(new GridLayout(1,2));
+		JLabel totalMinelbl = new JLabel(new ImageIcon(totalmine));
+		totalMinelbl.setHorizontalAlignment(JLabel.CENTER);
+		JLabel mineLeftlbl = new JLabel(new ImageIcon(mineleft));
+		mineLeftlbl.setHorizontalAlignment(JLabel.CENTER);
+		
+		JPanel totalMinePanel = new JPanel(new GridLayout(2,1));
+		JPanel mineLeftPanel = new JPanel(new GridLayout(2,1));
+		mineLeft = new JLabel((this.maxMine-this.mineCount)+"");
+		mineLeft.setFont(new Font("Arial",Font.ITALIC,20));
+		mineLeft.setForeground(Color.WHITE);
+		maxMineCount = new JLabel(this.maxMine+"");
+		maxMineCount.setFont(new Font("Arial",Font.ITALIC,20));
+		maxMineCount.setForeground(Color.WHITE);
+		mineLeft.setIcon(new ImageIcon(box));
+		maxMineCount.setIcon(new ImageIcon(box));
+		this.mineLeft.setHorizontalTextPosition(JLabel.CENTER);
+		this.mineLeft.setHorizontalAlignment(JLabel.CENTER);
+		this.maxMineCount.setHorizontalTextPosition(JLabel.CENTER);
+		this.maxMineCount.setHorizontalAlignment(JLabel.CENTER);
+		totalMinePanel.add(totalMinelbl);
+		totalMinePanel.add(maxMineCount);
+		mineLeftPanel.add(mineLeftlbl);
+		mineLeftPanel.add(mineLeft);
+		totalMinePanel.setOpaque(false);
+		mineLeftPanel.setOpaque(false);
+		minePanel.add(totalMinePanel);
+		minePanel.add(mineLeftPanel);
 		
 		
 		
 		
 		//TIMER LABEL
 		JPanel timerPanel = new JPanel();
-		JLabel timerTitle = new JLabel("Timer");
-		timerLabel = new JLabel();
-		timerLabel.setText("Seconds Left:");
+		JLabel timerTitle = new JLabel();
+		timerTitle.setIcon(new ImageIcon(timerB));
+		timerTitle.setHorizontalAlignment(JLabel.CENTER);
+		JPanel secondPanel = new JPanel(new GridLayout(2,1));
+		JLabel secondBanner = new JLabel(new ImageIcon(secondsLeft));
+		timerLabel = new JLabel(new ImageIcon(box));
+		timerLabel.setHorizontalAlignment(JLabel.CENTER);
+		timerLabel.setHorizontalTextPosition(JLabel.CENTER);
+		timerLabel.setText("10");
+		timerLabel.setFont(new Font("Arial",Font.ITALIC,20));
+		timerLabel.setForeground(Color.WHITE);
+		secondPanel.add(secondBanner);
+		secondPanel.add(timerLabel);
+		secondPanel.setOpaque(false);
 		timerPanel.setLayout(new GridLayout(1,2));
 		timerPanel.add(timerTitle);
-		timerPanel.add(timerLabel);
+		timerPanel.add(secondPanel);
+		timerPanel.setOpaque(false);
+		minePanel.setOpaque(false);
 		gameHUD.add(timerPanel);
 		gameHUD.add(minePanel);
 		createTimer();
@@ -219,7 +380,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	public void tempPromptName(){
 		String name = JOptionPane.showInputDialog("Please Input your name");
 		this.player = new Player(name);
-		this.playerName.setText("Player1:"+this.player.getName());
+		this.playerName.setText(this.player.getName());
 		JOptionPane.showMessageDialog(this, "Welcome "+this.player.getName(),"Welcome",JOptionPane.INFORMATION_MESSAGE);
 		//out.println("NAME:"+this.player.getName());
 	}
@@ -230,7 +391,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		JTextField txt = new JTextField(10);
 		panel.add(lbl);
 		panel.add(txt);
-		int mine = JOptionPane.showOptionDialog(null, panel, "The Title", JOptionPane.NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options , options[0]);
+		int mine = JOptionPane.showOptionDialog(null, panel, "Mine Input", JOptionPane.NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options , options[0]);
 		if(mine == 0){
 			if(txt.getText().equals("")){
 				maxMine = 11;
@@ -255,7 +416,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				timerLabel.setText("Time Left:"+seconds+"s");
+				timerLabel.setText(seconds+"s");
 				
 				if(seconds <0) {
 					//turnTimer.stop();
@@ -277,9 +438,9 @@ public class GameUIClient extends JPanel implements Runnable {
 	private void resetScore(){
 		this.mineCount = 0;
 		player.setScore(0);
-		playerScore.setText("Score:0");
+		playerScore.setText("0");
 		opponent.setScore(0);
-		opponentScore.setText("Score:0");
+		opponentScore.setText("0");
 	}
 	private void createBombGrid(){
 		createNewGridPanel();
@@ -308,9 +469,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		if(isConnected)this.sendSameBombGrid();
 		
 	}
-	private void randomBomb(int mine){
-		
-	}
+
 	private void setBombGrid(BombPanel grid[]){
 		createNewGridPanel();
 		for(int i = 0;i<this.bombField.length;i++){
@@ -353,20 +512,21 @@ public class GameUIClient extends JPanel implements Runnable {
 		if(bombField[panel].checkBomb()){
 			if(isPlayer){
 			this.player.addScore();
-			this.playerScore.setText("Score:"+player.getScore());
+			this.playerScore.setText(""+player.getScore());
 			this.mineCount++;
 			
 			//out.println("Score"+player.getScore());
 			} else {
 				this.opponent.addScore();
-				this.opponentScore.setText("Score:"+this.opponent.getScore());
+				this.opponentScore.setText(""+this.opponent.getScore());
 				this.mineCount++;
 			}
 		}
-		this.mineLeft.setText("Mine Left:"+(this.maxMine-this.mineCount));
+		this.mineLeft.setText(""+(this.maxMine-this.mineCount));
 		this.checkScore();
 		
 	}
+	
 	private void checkScore(){
 		if(this.mineCount >= this.maxMine){
 			out.println("END");
@@ -464,6 +624,11 @@ public class GameUIClient extends JPanel implements Runnable {
 		}
 		repaint();
 	}
+	@Override 
+	protected void paintComponent(Graphics g){
+		super.paintComponent(g);
+		 ((Graphics2D)g.create()).drawImage(bgImage, 0, 0, 1024, 768, this);
+	}
 	public void run() {
 
 		// TODO Auto-generated method stub
@@ -482,7 +647,6 @@ public class GameUIClient extends JPanel implements Runnable {
 				} else if(indexString.startsWith("F")){
 					
 					setReceiveField(indexString);
-					this.isOpponentNull = true;
 					if(isOpponentNull)this.sendPlayerName();
 					this.isOpponentNull = false;
 					this.setFieldTurn();
@@ -493,13 +657,13 @@ public class GameUIClient extends JPanel implements Runnable {
 				} else if (indexString.startsWith("MaxMine:")){
 					String mine = indexString.substring(8);
 					this.maxMine = Integer.parseInt(mine);
-					maxMineCount.setText("Total Mine:"+this.maxMine);
-					this.mineLeft.setText("Mine Left:"+(this.maxMine-this.mineCount));
+					maxMineCount.setText(""+this.maxMine);
+					this.mineLeft.setText(""+(this.maxMine-this.mineCount));
 				} 
 				else if (indexString.startsWith("NAME:")){
 					
 					this.opponent = new Player(indexString.substring(indexString.indexOf("NAME:")+5));
-					this.opponentName.setText("Player2:"+this.opponent.getName());
+					this.opponentName.setText(this.opponent.getName());
 					if(isOpponentNull)this.sendPlayerName();
 					this.isOpponentNull = false;
 				} else if (indexString.equals("END")){
@@ -568,17 +732,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		//}
 	}
 	
-	/*public static void main(String [] args) throws IOException{
-		JFrame frame = new JFrame();
-		GameUIClient s = new GameUIClient();
-		frame.add(s);
-		//frame.pack();
-		frame.setSize(new Dimension(1000,800)); frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		s.tempPromptName();
-		s.start();
-		
-	}*/
+	
 	
 	
 	

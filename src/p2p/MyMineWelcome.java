@@ -54,22 +54,22 @@ public class MyMineWelcome extends JPanel {
 		setLayout(new BorderLayout());
 		Image mine = null;
 		try {
-			mine = ImageIO.read(new File("logo.png"));
+			mine = ImageIO.read(new File("image/newlogo.gif"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Image newImg = mine.getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+		Image newImg = mine.getScaledInstance(450, 300, Image.SCALE_SMOOTH);
 		ImageIcon min = new ImageIcon(newImg);
 		JLabel mineLogo = new JLabel(min);
 		
 		
 	
-		JLabel titleBanner = new JLabel("Welcome to FindMyMine!!");
+		
 		JPanel title = new JPanel();
 		
 		//title.setLayout(new GridLayout(2,1));
-		title.add(titleBanner);
+		//title.add(titleBanner);
 		title.add(mineLogo);
 		
 		
@@ -114,12 +114,7 @@ public class MyMineWelcome extends JPanel {
 						break;
 					}
 				}
-				if(inputAddr.getText().equals("") && inputPort.getText().equals("") ){
-					///// Connect to this server, check whether connect successful or not
-					///// if success => pass info and CHANGE STATE TO PLAYERCONFIGUI// GAME IF NOT (CHANGE TO SAME STATE)
-					/////CHANGE STATE,
-					 
-				}
+				
 				
 			}
 			
@@ -145,7 +140,8 @@ public class MyMineWelcome extends JPanel {
 		textView.setEditable(false);
 		textView.setForeground(Color.CYAN);
 		textView.setBackground(Color.BLACK);
-		textView.setFont(new Font("Arirl",Font.ITALIC,20));
+		textView.setFont(new Font("Arial",Font.ITALIC,20));
+		this.setPreferredSize(new Dimension(500,500));
 		this.setVisible(true);
 	}
 	

@@ -63,6 +63,7 @@ public class Main extends JPanel implements Runnable {
 			revalidate();
 			add(welcome);
 			welcomeClip.loop(-1);
+			mainFrame.setSize(welcome.getWidth(), welcome.getHeight());
 			repaint();
 		} else if (currentState == GameState.GAME_PLAYING_SERVER){
 			removeAll();
@@ -76,6 +77,7 @@ public class Main extends JPanel implements Runnable {
 			}
 			add(gameController);
 			gameClip.loop(-1);
+			mainFrame.setSize(1000,875);
 			//gameController.setServer(true);
 			gameController.tempPromptName();
 			gameController.start();
@@ -92,6 +94,7 @@ public class Main extends JPanel implements Runnable {
 			}
 			add(gameController);
 			gameClip.loop(-1);
+			mainFrame.setSize(1000,875);
 			//gameController.setServer(false);
 			gameController.tempPromptName();
 			gameController.start();
@@ -105,7 +108,7 @@ public class Main extends JPanel implements Runnable {
 		mainFrame = new JFrame();
 		Main main = new Main();
 		mainFrame.add(main);
-		mainFrame.setSize(1200,1000);
+		mainFrame.setSize(1000,875);
 		mainFrame.setVisible(true);
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setLocationRelativeTo(null);

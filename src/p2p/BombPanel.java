@@ -128,7 +128,7 @@ public class BombPanel extends JPanel{
 		showImage.setIcon(new ImageIcon(setImage));
 	}
 	public void randomBomb(){
-		isBomb = (int)(Math.random()*1.55555)== 1? true:false ;
+		isBomb = (int)(Math.random()*2.55555)>= 1? true:false ;
 		if(isBomb)setImage = bombImg;
 		else setImage = freeImg;
 		//repaint();
