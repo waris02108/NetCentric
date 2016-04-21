@@ -170,7 +170,7 @@ public class Server extends JPanel{
 	            		sendToPair("Opponent"+Server.inputLine.substring(Server.inputLine.indexOf("NAME:")+5));
 	            		lastMsg = "Opponent"+Server.inputLine.substring(Server.inputLine.indexOf("NAME:")+5);
 	            	} else if (Server.inputLine.equals("Reset")){
-	            		out.println("Reset");
+	            		
 	            		this.randomTurn();
 	            	} else {
 		              //Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");

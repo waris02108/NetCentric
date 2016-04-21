@@ -416,7 +416,8 @@ public class GameUIClient extends JPanel implements Runnable {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				timerLabel.setText(seconds+"s");
+				if(myTurn) timerLabel.setText(seconds+"s");
+				else timerLabel.setText("Waiting:"+seconds+"s");
 				
 				if(seconds <0) {
 					//turnTimer.stop();
@@ -608,27 +609,24 @@ public class GameUIClient extends JPanel implements Runnable {
 		
 		if(myTurn){
 			//this.opponentName.setText("Your Turn");
+			GameUIClient.seconds = 10;
 			this.turnTimer.restart();
 			for(int i = 0; i<this.bombField.length;i++){
 				bombField[i].setButtonEnable();
 			}
 		} else {
 			//this.opponentName.setText("Your Opponent Turn");
-			this.timerLabel.setText("Wait for your opponent");
+			this.timerLabel.setText("Wait:");
 			this.turnTimer.stop();
 			GameUIClient.seconds = 10;
-			
+			this.turnTimer.restart();
 			for(int i = 0; i<this.bombField.length;i++){
 				bombField[i].setButtonDisable();
 			}
 		}
 		repaint();
 	}
-	@Override 
-	protected void paintComponent(Graphics g){
-		super.paintComponent(g);
-		 ((Graphics2D)g.create()).drawImage(bgImage, 0, 0, 1024, 768, this);
-	}
+	
 	public void run() {
 
 		// TODO Auto-generated method stub
