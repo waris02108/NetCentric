@@ -529,29 +529,32 @@ public class GameUIClient extends JPanel implements Runnable {
 	}
 	
 	private void checkScore(){
+		ResultPanel result = new ResultPanel();
 		if(this.mineCount >= this.maxMine){
 			out.println("END");
 			this.turnTimer.stop();
+			result.setPlayerScore(this.player.getScore());
+			result.setAwayScore(this.opponent.getScore());
 			Object options[] = {"Quit", "Rematch"};
 			if(this.player.getScore()>this.opponent.getScore()){
-				
-				Object selected = JOptionPane.showInputDialog(new ResultPanel(this.totaltime),"Congratulation, You got"+this.player.getScore(),"You Win!!!",
-						JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
+				result.setVictory(true);
+				Object selected = JOptionPane.showInputDialog(this,result,"You Win!!!",
+						JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
 				if(selected.equals(options[0])){
 					System.exit(0);
 				} else {
-					this.createBombGrid();
+					
 					this.confirmRematch = true;
 					out.println("Rematch");
 				}
 			} else if(this.player.getScore() == this.opponent.getScore() ){
-				
-				Object selected = JOptionPane.showInputDialog(this,"Draw, You got"+this.player.getScore(),"It a Tie!!!",
-						JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
+				result.setVictory(false);
+				Object selected = JOptionPane.showInputDialog(this,result,"It a Tie!!!",
+						JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
 				if(selected.equals(options[0])){
 					System.exit(0);
 				} else {
-					this.createBombGrid();
+				
 					this.confirmRematch = true;
 					out.println("Rematch");
 				}
@@ -559,9 +562,9 @@ public class GameUIClient extends JPanel implements Runnable {
 			
 			
 			else {
-				
-				Object selected = JOptionPane.showInputDialog(this,"Defeat, You got"+this.player.getScore(),"You Lose!!!",
-						JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
+				result.setVictory(false);
+				Object selected = JOptionPane.showInputDialog(this,result,"You Lose!!!",
+						JOptionPane.PLAIN_MESSAGE,null,options,options[0]);
 				if(selected.equals(options[0])){
 					out.println("Quit");
 					System.exit(0);
@@ -615,7 +618,7 @@ public class GameUIClient extends JPanel implements Runnable {
 				bombField[i].setButtonEnable();
 			}
 		} else {
-			this.opponentName.setText("Wait");
+			this.timerLabel.setText("Wait");
 			this.totaltime = this.totaltime + seconds;
 			
 			this.turnTimer.stop();
@@ -672,9 +675,12 @@ public class GameUIClient extends JPanel implements Runnable {
 					System.exit(0);
 				} else if (indexString.equals("Rematch")){
 					if(confirmRematch){
-						this.createBombGrid();
-						this.bombGrid.setVisible(true);
-						this.sendSameBombGrid();
+						bombGrid.setVisible(false);
+						createBombGrid();
+						out.println("Reset");
+						add(bombGrid,BorderLayout.CENTER);
+						bombGrid.setVisible(true);
+						resetScore();
 					} else {
 						JOptionPane.showMessageDialog(this, "Your Opponent Quit");
 						System.exit(0);

@@ -35,20 +35,21 @@ import javax.swing.JTextField;
 import clientServer.GameUIClient;
 public class ResultPanel extends JPanel {
 	private int yourscore = 0;
+	private int awayscore = 0;
 	Image backgroundImage = null;
 	ImageIcon youwinIcon;
 	ImageIcon youloseIcon;
 	JLabel victory = new JLabel();
 	JLabel totaltime = new JLabel();
 	JLabel totalLbl = new JLabel("s");
-	public ResultPanel(int score){
+	JLabel awayScore = new JLabel("0");
+	JLabel playerScore = new JLabel("0");
+	public ResultPanel(){
 		super();
 		setGUI();
-		yourscore = score;
+		
 	}
-	public void setScore(int score){
-		this.yourscore = score;
-	}
+	
 	public void setGUI(){
 		this.setLayout(new GridLayout(1,3));
 		this.setPreferredSize(new Dimension(400,200));
@@ -81,7 +82,7 @@ public class ResultPanel extends JPanel {
 		youloseIcon = new ImageIcon(youlose);
 		JLabel playerBanner = new JLabel();
 		playerBanner.setIcon(new ImageIcon(home));
-		JLabel playerScore = new JLabel("0");
+		
 		playerScore.setForeground(Color.WHITE);
 		playerScore.setFont(new Font("Arial",Font.ITALIC,20));
 		playerScore.setIcon(new ImageIcon(box));
@@ -121,12 +122,13 @@ public class ResultPanel extends JPanel {
 		JPanel awayPanel = new JPanel(new GridLayout(2,1));
 		JLabel awayBanner = new JLabel();
 		awayBanner.setIcon(new ImageIcon(away));
-		JLabel awayScore = new JLabel("0");
+		
 		awayScore.setForeground(Color.WHITE);
 		awayScore.setFont(new Font("Arial",Font.ITALIC,20));
 		awayScore.setIcon(new ImageIcon(box));
-		awayScore.setHorizontalTextPosition(JLabel.CENTER);
+		
 		awayScore.setHorizontalAlignment(JLabel.CENTER);
+		awayScore.setHorizontalTextPosition(JLabel.CENTER);
 		awayBanner.setHorizontalAlignment(JLabel.CENTER);
 		awayPanel.add(awayBanner);
 		awayPanel.add(awayScore);
@@ -153,15 +155,22 @@ public class ResultPanel extends JPanel {
 	public void settotalTime(int seconds){
 		totalLbl.setText(seconds+"s");
 	}
-	public static void main(String[] args) throws IOException {
-		JFrame frame = new JFrame();
-		
-		frame.add(new ResultPanel(3));
-		// frame.pack();
-		frame.setSize(new Dimension(600, 300));
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-
+	public void setPlayerScore(int score){
+		this.playerScore.setText(""+score);
 	}
+	public void setAwayScore(int score){
+		this.awayScore.setText(""+score);
+	}
+	
+//	public static void main(String[] args) throws IOException {
+//		JFrame frame = new JFrame();
+//		
+//		frame.add(new ResultPanel(3));
+//		// frame.pack();
+//		frame.setSize(new Dimension(600, 300));
+//		frame.setVisible(true);
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		
+//
+//	}
 }
