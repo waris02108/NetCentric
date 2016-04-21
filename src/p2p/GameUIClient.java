@@ -535,7 +535,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			Object options[] = {"Quit", "Rematch"};
 			if(this.player.getScore()>this.opponent.getScore()){
 				
-				Object selected = JOptionPane.showInputDialog(this,"Congratulation, You got"+this.player.getScore(),"You Win!!!",
+				Object selected = JOptionPane.showInputDialog(new ResultPanel(this.totaltime),"Congratulation, You got"+this.player.getScore(),"You Win!!!",
 						JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
 				if(selected.equals(options[0])){
 					System.exit(0);
@@ -615,12 +615,12 @@ public class GameUIClient extends JPanel implements Runnable {
 				bombField[i].setButtonEnable();
 			}
 		} else {
-			//this.opponentName.setText("Your Opponent Turn");
+			this.opponentName.setText("Wait");
 			this.totaltime = this.totaltime + seconds;
-			this.timerLabel.setText("Wait:");
+			
 			this.turnTimer.stop();
 			GameUIClient.seconds = 10;
-			this.turnTimer.restart();
+			
 			for(int i = 0; i<this.bombField.length;i++){
 				bombField[i].setButtonDisable();
 			}

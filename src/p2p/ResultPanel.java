@@ -31,6 +31,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import clientServer.GameUIClient;
 public class ResultPanel extends JPanel {
 	private int yourscore = 0;
 	Image backgroundImage = null;
@@ -59,8 +61,8 @@ public class ResultPanel extends JPanel {
 		Image totaltime = null;
 		
 		try {
-			youwin = ImageIO.read(new File("image/youwin.gif"));
-			youlose = ImageIO.read(new File("image/youlose.gif"));
+			youwin = ImageIO.read(new File("image/youwin.png"));
+			youlose = ImageIO.read(new File("image/youlose.png"));
 			home = ImageIO.read(new File("image/home.png"));
 			away = ImageIO.read(new File("image/away.png"));
 			box = ImageIO.read(new File("image/box1.gif"));
@@ -147,5 +149,16 @@ public class ResultPanel extends JPanel {
 	}
 	public void settotalTime(int seconds){
 		totalLbl.setText(seconds+"s");
+	}
+	public static void main(String[] args) throws IOException {
+		JFrame frame = new JFrame();
+		
+		frame.add(new ResultPanel(3));
+		// frame.pack();
+		frame.setSize(new Dimension(1000, 800));
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+
 	}
 }
