@@ -166,8 +166,11 @@ public class Server extends JPanel{
 	            	   //Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");  
 	            		sendToPair("Opponent"+Server.inputLine.substring(Server.inputLine.indexOf("NAME:")+5));
 	            	} else if (Server.inputLine.equals("Reset")){
+	            		sendToPair(Server.inputLine);
+	            		
+	            	} else if (Server.inputLine.equals("#FinishReset")){
 	            		this.randomTurn();
-	            	} else {
+	            	}else {
 		              sendToPair(Server.inputLine);
 	            	}
 		         }

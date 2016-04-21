@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.*;
 
+
+
 public class GameUIClient extends JPanel implements Runnable {
 	private BombPanel bombField[];
 	private JPanel bombGrid;
@@ -282,24 +284,25 @@ public class GameUIClient extends JPanel implements Runnable {
 	private void setReceiveField(String indexString) {
 		// TODO Auto-generated method stub
 		bombGrid.setVisible(false);
+		
 		ArrayList<Integer> bomb = new ArrayList<Integer>();
-		String temp = indexString.substring(1, indexString.length());
-		for (int i = 0; i < 11; i++) {
-			if (temp.indexOf(" ") == -1)
-				break;
+		String temp = indexString.substring(1,indexString.length());
+		for(int i =0; i<this.maxMine;i++){
+			if(temp.indexOf(" ") == -1) break;
 			bomb.add(Integer.parseInt(temp.substring(0, temp.indexOf(" "))));
-			temp = temp.substring(temp.indexOf(" ") + 1);
+			temp = temp.substring(temp.indexOf(" ")+1);
 		}
-		for (int i = 0; i < this.bombField.length; i++) {
+		for(int i =0;i<this.bombField.length;i++){
+			bombField[i] = new BombPanel();
+			bombField[i].setButtonListener(new BombListener(this,i));
 			bombField[i].setBomb(false);
 		}
-		for (int i = 0; i < bomb.size(); i++) {
+		for(int i =0;i < bomb.size();i++){
 			bombField[bomb.get(i)].setBomb(true);
 		}
 		this.setBombGrid(this.bombField);
-
+		
 	}
-
 	public void setFieldTurn() {
 		if (myTurn) {
 			// this.opponentName.setText("Your Turn");
@@ -332,14 +335,20 @@ public class GameUIClient extends JPanel implements Runnable {
 					turnTimer.stop();
 					seconds = 10;
 					this.resetScore();
+					out.println("#FinishReset");
 				}
 				else if (indexString.equals("ResetCommandFromServer")){
-					bombGrid.setVisible(false);
-					createBombGrid();
-					out.println("Reset");
-					add(bombGrid,BorderLayout.CENTER);
-					bombGrid.setVisible(true);
-					resetScore();
+				
+					if(myTurn){
+						System.out.println("Client2 receive reset");
+						bombGrid.setVisible(false);
+						createBombGrid();
+						out.println("Reset");
+						add(bombGrid,BorderLayout.CENTER);
+						bombGrid.setVisible(true);
+						resetScore();
+					}
+					
 				} else if (indexString.equals("Start")) {
 					this.isOpponentNull = true;
 					sendSameBombGrid();

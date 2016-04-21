@@ -51,7 +51,7 @@ public class ResultPanel extends JPanel {
 	}
 	public void setGUI(){
 		this.setLayout(new GridLayout(1,3));
-		this.setPreferredSize(new Dimension(500,300));
+		this.setPreferredSize(new Dimension(400,200));
 		JPanel homepanel = new JPanel(new GridLayout(2,1));
 		Image home = null;
 		Image youwin = null;
@@ -62,7 +62,7 @@ public class ResultPanel extends JPanel {
 		
 		try {
 			youwin = ImageIO.read(new File("image/youwin.png"));
-			youlose = ImageIO.read(new File("image/youlose.png"));
+			youlose = ImageIO.read(new File("image/youlost.png"));
 			home = ImageIO.read(new File("image/home.png"));
 			away = ImageIO.read(new File("image/away.png"));
 			box = ImageIO.read(new File("image/box1.gif"));
@@ -75,8 +75,8 @@ public class ResultPanel extends JPanel {
 		totaltime = totaltime.getScaledInstance(150, 40, Image.SCALE_SMOOTH);
 		home = home.getScaledInstance(150, 60, Image.SCALE_SMOOTH);
 		away = away.getScaledInstance(150, 60, Image.SCALE_SMOOTH);
-		youwin = youwin.getScaledInstance(200,200,Image.SCALE_SMOOTH);
-		youlose = youlose.getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+		youwin = youwin.getScaledInstance(150,150,Image.SCALE_SMOOTH);
+		youlose = youlose.getScaledInstance(150, 150, Image.SCALE_SMOOTH);
 		youwinIcon = new ImageIcon(youwin);
 		youloseIcon = new ImageIcon(youlose);
 		JLabel playerBanner = new JLabel();
@@ -90,12 +90,13 @@ public class ResultPanel extends JPanel {
 		playerBanner.setHorizontalAlignment(JLabel.CENTER);
 		homepanel.add(playerBanner);
 		homepanel.add(playerScore);
-		homepanel.setOpaque(true);
+		homepanel.setOpaque(false);
 		
 		JPanel middlePanel = new JPanel(new GridLayout(2,1));
 		middlePanel.add(this.victory);
+		victory.setIcon(youloseIcon);		
 		JPanel totalPanel = new JPanel(new GridLayout(2,1));
-		totalPanel.setOpaque(true);
+		totalPanel.setOpaque(false);
 		JLabel total = new JLabel(new ImageIcon(totaltime));
 		totalPanel.add(total);
 	
@@ -108,7 +109,7 @@ public class ResultPanel extends JPanel {
 		totalPanel.add(total);
 		totalPanel.add(totalLbl);
 		middlePanel.add(totalPanel);
-		middlePanel.setOpaque(true);
+		middlePanel.setOpaque(false);
 		
 		
 		
@@ -127,7 +128,9 @@ public class ResultPanel extends JPanel {
 		awayScore.setHorizontalTextPosition(JLabel.CENTER);
 		awayScore.setHorizontalAlignment(JLabel.CENTER);
 		awayBanner.setHorizontalAlignment(JLabel.CENTER);
-		awayPanel.setOpaque(true);
+		awayPanel.add(awayBanner);
+		awayPanel.add(awayScore);
+		awayPanel.setOpaque(false);
 		
 		this.add(homepanel);
 		this.add(middlePanel);
@@ -137,7 +140,7 @@ public class ResultPanel extends JPanel {
 	}
 	protected void paintComponent(Graphics g){
 		  super.paintComponent(g);
-		    ((Graphics2D)g.create()).drawImage(backgroundImage, 0, 0, 1024, 768, this);
+		    ((Graphics2D)g.create()).drawImage(backgroundImage, 0, 0, this);
 		   
 	}
 	public void setVictory(boolean isWin){
@@ -155,7 +158,7 @@ public class ResultPanel extends JPanel {
 		
 		frame.add(new ResultPanel(3));
 		// frame.pack();
-		frame.setSize(new Dimension(1000, 800));
+		frame.setSize(new Dimension(600, 300));
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
