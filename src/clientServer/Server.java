@@ -1,31 +1,31 @@
 package clientServer;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-
-public class Server extends JPanel{
+public class Server extends JPanel {
 	static ArrayList<PrintWriter> clientList;
 	static ArrayList<Integer> clientID;
 	static ArrayList<TestRunnable> clientRunnable;
@@ -34,87 +34,88 @@ public class Server extends JPanel{
 	static int numClients = 0;
 	static String inputLine;
 	static JTextArea showUser;
-	JButton reset;
+	JButton btnReset, btnScore;
 	static ServerSocket server;
 
-	public Server() throws IOException{
+	public Server() throws IOException {
 		setGUI();
-		InetAddress addrhost = InetAddress.getByName("127.0.0.1");;
 		server = new ServerSocket(1256);
-		
-		
 	}
-	private JLabel playerInfo;
-	private String playerString = "";
-	public void setGUI(){
+
+	public void setGUI() {
 		showUser = new JTextArea();
-		showUser.setPreferredSize(new Dimension(300,300));
+		showUser.setPreferredSize(new Dimension(300, 300));
 		JScrollPane scroll = new JScrollPane(showUser);
 		this.add(scroll);
-		reset = new JButton("RESET");
-		this.add(reset,BorderLayout.SOUTH);
+		btnReset = new JButton("RESET");
+		this.add(btnReset, BorderLayout.SOUTH);
+		btnScore = new JButton("Update Score");
+		this.add(btnScore, BorderLayout.SOUTH);
 		this.setVisible(true);
-		
-		playerInfo = new JLabel(playerString);
-		
-		this.add(playerInfo,BorderLayout.EAST);
 	}
-	public void startPlay() throws IOException{
-		while(true){
+
+	public void startPlay() throws IOException {
+		while (true) {
 			System.out.println("Waiting for a Client ...");
 			Socket con = server.accept();
-		//	System.out.println(clientList.toString());
-			
-			TestRunnable r = new TestRunnable(numClients,con);
+			// System.out.println(clientList.toString());
+
+			TestRunnable r = new TestRunnable(numClients, con);
 			numClients++;
 			execs.execute(r);
 			clientRunnable.add(r);
-			
+
 		}
-		
+
 	}
-	public static void main(String[] args) throws IOException{
+
+	public static void main(String[] args) throws IOException {
 		clientList = new ArrayList<PrintWriter>();
 		clientID = new ArrayList<Integer>();
 		clientRunnable = new ArrayList<TestRunnable>();
-		JFrame mainFrame =  new JFrame();
+		JFrame mainFrame = new JFrame();
 		Server s = new Server();
 		mainFrame.add(s);
-		mainFrame.setSize(new Dimension(400,400));
+		mainFrame.setSize(new Dimension(400, 400));
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setVisible(true);
-		s.startPlay();		
+		s.startPlay();
 	}
-	//server for each one to handle dataflow
-	class TestRunnable implements Runnable{
+
+	// server for each one to handle dataflow
+	class TestRunnable implements Runnable {
 		int id;
 		Socket con;
 		int pairId;
 		String name;
-		
+
 		final int NUM_REPEAT = 5;
-		public TestRunnable(int id,Socket con){
+
+		public TestRunnable(int id, Socket con) {
 			this.pairId = -1;
 			this.id = id;
 			this.con = con;
-			System.out.println("Client #"+id+" is connected.");
+			System.out.println("Client #" + id + " is connected.");
 			Server.clientID.add(id);
 		}
-		
-		public String echo(String msg){
-			return "Client #"+id+": "+msg;
+
+		public String echo(String msg) {
+			return "Client #" + id + ": " + msg;
 		}
-		public void setPairID(int pairId){
+
+		public void setPairID(int pairId) {
 			this.pairId = pairId;
 		}
-		public void broadcast(String msg){
-	    	for(PrintWriter p:Server.clientList){
-	    		p.println(msg);
-	    	}
+
+		public void broadcast(String msg) {
+			for (PrintWriter p : Server.clientList) {
+				p.println(msg);
+			}
 		}
-		public void randomTurn(){
-			int random = (int)(Math.random()*1.99999);
-			if(random == 0){
+
+		public void randomTurn() {
+			int random = (int) (Math.random() * 1.99999);
+			if (random == 0) {
 				// you go 2nd
 				Server.clientList.get(pairId).println("TFirst");
 				// opponent 1st
@@ -125,76 +126,124 @@ public class Server extends JPanel{
 				Server.clientList.get(id).println("TFirst");
 			}
 		}
-		public void sendToPair(String msg){
+
+		public void sendToPair(String msg) {
 			Server.clientList.get(pairId).println(msg);
 		}
-		
+
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
 			boolean stillOn = true;
-			
-			while(stillOn){
+
+			while (stillOn) {
 				try {
-		            PrintWriter out = new PrintWriter(con.getOutputStream(),true);
-		            reset.addActionListener(new ActionListener(){
+					PrintWriter out = new PrintWriter(con.getOutputStream(),
+							true);
+					btnReset.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent arg0) {
 							sendToPair("ResetCommandFromServer");
-						}	
+						}
 					});
-		            Server.clientList.add(out);
-		            if(Server.numClients <2){
-		            	out.println("Waiting for Another Player");
-		            } 
-		            if (Server.numClients == 2){
-		            	Server.clientRunnable.get(0).setPairID(1);
-		            	Server.clientRunnable.get(1).setPairID(0);
-		            	//Start will synchronize the bombBoard
-		            	out.println("Start"); 
-		            	//Send random Turn
-		            	this.randomTurn();
-		            }
-		            Server.showUser.append("Client #"+id+" is connected.\n");
-		            Server.showUser.append("Concurrent Online: "+numClients+"\n");
-		            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-	            while ((Server.inputLine = in.readLine()) != null) {
-	            	if(Server.inputLine.startsWith("F")){
-	            		sendToPair(Server.inputLine);
-	            	} else if (Server.inputLine.equals("NextTurn")){
-	            		sendToPair("TimeYourTurn");
-	            	} else if (Server.inputLine.startsWith("NAME:")){
-	            	   //Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");  
-	            		sendToPair("Opponent"+Server.inputLine.substring(Server.inputLine.indexOf("NAME:")+5));
-	            	} else if (Server.inputLine.equals("Reset")){
-	            		sendToPair(Server.inputLine);
-	            		
-	            	} else if (Server.inputLine.equals("#FinishReset")){
-	            		this.randomTurn();
-	            	}else {
-		              sendToPair(Server.inputLine);
-	            	}
-		         }
-				System.out.println("Client#"+id+" has left.");
-					numClients--;
-		            out.close();
-		            in.close();
-		            con.close();
-		        } catch (IOException e) {
-		            System.err.println("Problem with Communication Server");
-		            stillOn = false;
-		        }
-	        }
-			System.out.println("Client #"+id+" has lost its connection.");
-		//	System.out.println(id+" INT: "+TestServer.clientID.toString());
-			for(int i=0;true;i++){
-				if(Server.clientID.get(i) == id){
+					btnScore.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent arg0) {
+							sendToPair("ScoreCommandFromServer");
+						}
+					});
+					Server.clientList.add(out);
+					if (Server.numClients < 2) {
+						out.println("Waiting for Another Player");
+					}
+					if (Server.numClients == 2) {
+						Server.clientRunnable.get(0).setPairID(1);
+						Server.clientRunnable.get(1).setPairID(0);
+						// Start will synchronize the bombBoard
+						out.println("Start");
+						// Send random Turn
+						this.randomTurn();
+					}
+					Server.showUser
+							.append("Client #" + id + " is connected.\n");
+					Server.showUser.append("Concurrent Online: " + numClients
+							+ "\n");
+					BufferedReader in = new BufferedReader(
+							new InputStreamReader(con.getInputStream()));
+					while ((Server.inputLine = in.readLine()) != null) {
+						if (Server.inputLine.startsWith("F")) {
+							sendToPair(Server.inputLine);
+						} else if (Server.inputLine.equals("NextTurn")) {
+							sendToPair("TimeYourTurn");
+						} else if (Server.inputLine.startsWith("NAME:")) {
+							// Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");
+							String temp = "Opponent"
+									+ Server.inputLine
+											.substring(Server.inputLine
+													.indexOf("NAME:") + 5);
+							sendToPair(temp);
+						} else if (Server.inputLine.equals("Reset")) {
+							sendToPair(Server.inputLine);
+						} else if (Server.inputLine.equals("#FinishReset"))
+							this.randomTurn();
+						else if (Server.inputLine.startsWith("Score")) {
+							Server.showUser.append("===Update Score===\n"
+									+ Server.inputLine.substring(5) + "\n");
+						} else {
+							sendToPair(Server.inputLine);
+						}
+					}
+					System.out.println("Client#" + id + " has left.");
+					out.close();
+					in.close();
+					con.close();
+				} catch (IOException e) {
+					System.err.println("Problem with Communication Server");
+					stillOn = false;
+				}
+			}
+			System.out.println("Client #" + id + " has lost its connection.");
+			numClients--;
+			for (int i = 0; true; i++) {
+				if (Server.clientID.get(i) == id) {
 					Server.clientList.remove(i);
 					Server.clientID.remove(i);
 					Server.clientRunnable.remove(i);
-					broadcast("Client #"+id+" has left.");
+					broadcast("Client #" + id + " has left.");
 					return;
 				}
 			}
-		}	
+		}
+	}
+
+	public static void insertBGM(String sound) {
+		File soundFile = new File(sound);
+		AudioInputStream audioIn4 = null;
+		try {
+			audioIn4 = AudioSystem.getAudioInputStream(soundFile);
+			Clip clip2 = AudioSystem.getClip();
+			clip2.open(audioIn4);
+			clip2.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	static Clip welcomeClip, gameClip;
+
+	public void createSound() {
+		File soundFile1 = new File("bensound-littleidea.wav");
+		File soundFile2 = new File("bgm2.wav");
+		AudioInputStream audioIn = null;
+		AudioInputStream audioIn2 = null;
+		try {
+			audioIn = AudioSystem.getAudioInputStream(soundFile1);
+			welcomeClip = AudioSystem.getClip();
+			welcomeClip.open(audioIn);
+			audioIn2 = AudioSystem.getAudioInputStream(soundFile2);
+			gameClip = AudioSystem.getClip();
+			gameClip.open(audioIn2);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

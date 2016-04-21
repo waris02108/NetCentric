@@ -1,19 +1,15 @@
 package clientServer;
+
 import java.net.*;
 import java.util.ArrayList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.io.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
-
-
 
 public class GameUIClient extends JPanel implements Runnable {
 	private BombPanel bombField[];
@@ -35,6 +31,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	boolean isConnected;
 	Timer turnTimer;
 	boolean isOpponentNull = false;
+	boolean confirmRematch;
 
 	// ObjectOutputStream out;
 	// ObjectInputStream in;
@@ -135,7 +132,6 @@ public class GameUIClient extends JPanel implements Runnable {
 
 	private void createNewGridPanel() {
 		bombGrid = new JPanel();
-
 		bombGrid.setLayout(new GridLayout(6, 6));
 	}
 
@@ -230,45 +226,63 @@ public class GameUIClient extends JPanel implements Runnable {
 	}
 
 	public void computeScore(int panel, boolean isPlayer) {
-		
 		if (bombField[panel].checkBomb()) {
 			if (isPlayer) {
 				this.player.addScore();
 				this.playerScore.setText("Score:" + player.getScore());
 				this.mineCount++;
-				// out.println("Score"+player.getScore());
-				//out.println("testScore()"+player.getName()+": "+player.getScore());
 			} else {
 				this.opponent.addScore();
 				this.opponentScore.setText("Score:" + this.opponent.getScore());
 				this.mineCount++;
 			}
 		}
+		this.checkScore();
+	}
+
+	private void checkScore() {
 		if (this.mineCount >= this.maxMine) {
+			out.println("END");
+			this.turnTimer.stop();
 			Object options[] = { "Quit", "Rematch" };
 			if (this.player.getScore() > this.opponent.getScore()) {
-
 				Object selected = JOptionPane.showInputDialog(this,
-						"Congratulation", "You Win!!!",
-						JOptionPane.INFORMATION_MESSAGE, null, options,
-						options[0]);
-				if (selected.equals(options[0])) {
-					System.exit(0);
-				} else {
-					this.createBombGrid();
-				}
-			} else {
-				Object selected = JOptionPane.showInputDialog(this, "Defeat",
-						"You Lose!!!", JOptionPane.INFORMATION_MESSAGE, null,
+						"Congratulation, You got" + this.player.getScore(),
+						"You Win!!!", JOptionPane.INFORMATION_MESSAGE, null,
 						options, options[0]);
 				if (selected.equals(options[0])) {
 					System.exit(0);
 				} else {
 					this.createBombGrid();
+					this.confirmRematch = true;
+					out.println("Rematch");
+				}
+			} else if (this.player.getScore() == this.opponent.getScore()) {
+				Object selected = JOptionPane.showInputDialog(this,
+						"Draw, You got" + this.player.getScore(),
+						"It a Tie!!!", JOptionPane.INFORMATION_MESSAGE, null,
+						options, options[0]);
+				if (selected.equals(options[0])) {
+					System.exit(0);
+				} else {
+					this.createBombGrid();
+					this.confirmRematch = true;
+					out.println("Rematch");
+				}
+			} else {
+				Object selected = JOptionPane.showInputDialog(this,
+						"Defeat, You got" + this.player.getScore(),
+						"You Lose!!!", JOptionPane.INFORMATION_MESSAGE, null,
+						options, options[0]);
+				if (selected.equals(options[0])) {
+					out.println("Quit");
+					System.exit(0);
+				} else {
+					this.confirmRematch = true;
+					out.println("Rematch");
 				}
 			}
 		}
-
 	}
 
 	private void sendSameBombGrid() {
@@ -284,25 +298,25 @@ public class GameUIClient extends JPanel implements Runnable {
 	private void setReceiveField(String indexString) {
 		// TODO Auto-generated method stub
 		bombGrid.setVisible(false);
-		
 		ArrayList<Integer> bomb = new ArrayList<Integer>();
-		String temp = indexString.substring(1,indexString.length());
-		for(int i =0; i<this.maxMine;i++){
-			if(temp.indexOf(" ") == -1) break;
+		String temp = indexString.substring(1, indexString.length());
+		for (int i = 0; i < 11; i++) {
+			if (temp.indexOf(" ") == -1)
+				break;
 			bomb.add(Integer.parseInt(temp.substring(0, temp.indexOf(" "))));
-			temp = temp.substring(temp.indexOf(" ")+1);
+			temp = temp.substring(temp.indexOf(" ") + 1);
 		}
 		for(int i =0;i<this.bombField.length;i++){
 			bombField[i] = new BombPanel();
 			bombField[i].setButtonListener(new BombListener(this,i));
 			bombField[i].setBomb(false);
 		}
-		for(int i =0;i < bomb.size();i++){
+		for (int i = 0; i < bomb.size(); i++) {
 			bombField[bomb.get(i)].setBomb(true);
 		}
 		this.setBombGrid(this.bombField);
-		
 	}
+
 	public void setFieldTurn() {
 		if (myTurn) {
 			// this.opponentName.setText("Your Turn");
@@ -320,27 +334,22 @@ public class GameUIClient extends JPanel implements Runnable {
 			}
 		}
 		repaint();
-		
 	}
 
 	public void run() {
-
 		// TODO Auto-generated method stub
 		boolean stillOn = true;
 		while (stillOn) {
 			try {
 				String indexString = in.readLine();
 				System.out.println("In run: " + indexString);
-				if (indexString.equals("Reset")){
+				if (indexString.equals("Reset")) {
 					turnTimer.stop();
 					seconds = 10;
 					this.resetScore();
 					out.println("#FinishReset");
-				}
-				else if (indexString.equals("ResetCommandFromServer")){
-				
+				} else if (indexString.equals("ResetCommandFromServer")) {
 					if(myTurn){
-						System.out.println("Client2 receive reset");
 						bombGrid.setVisible(false);
 						createBombGrid();
 						out.println("Reset");
@@ -348,20 +357,20 @@ public class GameUIClient extends JPanel implements Runnable {
 						bombGrid.setVisible(true);
 						resetScore();
 					}
-					
+				} else if (indexString.equals("ScoreCommandFromServer")){
+					out.println("Score"+this.player.getName()+": "+this.player.getScore());
 				} else if (indexString.equals("Start")) {
 					this.isOpponentNull = true;
 					sendSameBombGrid();
 				} else if (indexString.startsWith("Waiting")) {
-					System.out.println("Wait for grid");
-					// this.isOpponentNull = true;
+					//System.out.println("Wait for grid");
 				} else if (indexString.startsWith("F")) {
-
 					setReceiveField(indexString);
 					this.isOpponentNull = true;
 					if (isOpponentNull)
 						this.sendPlayerName();
 					this.isOpponentNull = false;
+					this.setFieldTurn();
 				} else if (indexString.equals("TimeYourTurn")) {
 					this.myTurn = true;
 					this.setFieldTurn();
@@ -374,10 +383,7 @@ public class GameUIClient extends JPanel implements Runnable {
 					if (isOpponentNull)
 						this.sendPlayerName();
 					this.isOpponentNull = false;
-				}
-
-				else if (indexString.startsWith("T")) {
-					// if(this.opponent.equals(null)) this.sendPlayerName();
+				} else if (indexString.startsWith("T")) {
 					String testTurn = indexString.substring(1);
 					if (testTurn.equals("First")) {
 						this.myTurn = true;
@@ -386,41 +392,45 @@ public class GameUIClient extends JPanel implements Runnable {
 						this.myTurn = false;
 						this.setFieldTurn();
 					}
-					// this.playerName.setText(testTurn);
+				} else if (indexString.equals("END")) {
+					this.checkScore();
+				} else if (indexString.equals("Quit")) {
+					JOptionPane.showMessageDialog(this, "Your Opponent Quit");
+					System.exit(0);
+				} else if (indexString.equals("Rematch")) {
+					if (confirmRematch) {
+						this.createBombGrid();
+						this.bombGrid.setVisible(true);
+						this.sendSameBombGrid();
+					} else {
+						JOptionPane.showMessageDialog(this,
+								"Your Opponent Quit");
+						System.exit(0);
+					}
 				} else {
-
 					int index = Integer.parseInt(indexString);
-					// System.out.println(index);
-
 					processBombGrid(index);
 				}
-
 			} catch (IOException e) {
 				System.err
 						.println("Problem with Communication Server in Client");
 				stillOn = false;
 			}
 		}
-
 	}
 
 	private void sendPlayerName() {
-		// TODO Auto-generated method stub
-		// if(isOpponentNull){
 		out.println("NAME:" + this.player.getName());
-		// }
 	}
 
 	public static void main(String[] args) throws IOException {
 		JFrame frame = new JFrame();
 		GameUIClient s = new GameUIClient();
 		frame.add(s);
-		// frame.pack();
 		frame.setSize(new Dimension(1000, 800));
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		s.tempPromptName();
 		s.start();
-
 	}
 }
