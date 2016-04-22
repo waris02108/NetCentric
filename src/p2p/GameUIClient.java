@@ -31,7 +31,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	private JLabel opponentScore;
 	private JLabel maxMineCount;
 	private JLabel mineLeft;
-	
+	Color desireColor = Color.BLACK;
 	private static int seconds = 10;
 	boolean myTurn;
 	boolean confirmRematch;
@@ -107,6 +107,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			//client
 			try {
 				con = new Socket("127.0.0.1", 1256);
+				//IP = 172.20.10.6
 				//con = new Socket(Main.ip, Integer.parseInt(Main.port));
 				in = new BufferedReader(new InputStreamReader(
 						con.getInputStream()));
@@ -190,7 +191,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			   public void paintComponent(Graphics g) {
 			    super.paintComponent(g);
 			   
-			    	setBackground(Color.black);
+			    	setBackground(desireColor);
 			   }
 			   
 			 
@@ -424,7 +425,9 @@ public class GameUIClient extends JPanel implements Runnable {
 			}
 			
 		});
-		JPanel musicPanel = new JPanel(new GridLayout(1,2));
+		JPanel lowerPanel = new JPanel(new GridLayout(1,2));
+		lowerPanel.setOpaque(false);
+		JPanel musicPanel = new JPanel(new GridLayout(2,1));
 		musicPanel.setOpaque(false);
 		musicPanel.add(closeMusicBtn);
 		
@@ -457,8 +460,28 @@ public class GameUIClient extends JPanel implements Runnable {
 			
 		});
 		musicPanel.add(musicList);
+		lowerPanel.add(musicPanel);
+	
+		
+		JButton colorBtn = new JButton("Change BG");
+		colorBtn.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				Color newcolor =  JColorChooser.showDialog(null, "Choose a color", desireColor);
+				desireColor = newcolor;
+				gameHUD.repaint();
+			}
+			
+		});
+		
+		
+		
+		
 		musicPanel.setPreferredSize(new Dimension(150,150));
-		gameHUD.add(musicPanel);
+		lowerPanel.add(colorBtn);
+		gameHUD.add(lowerPanel);
 			
 		
 	}
