@@ -19,13 +19,17 @@ import java.util.concurrent.Executors;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class Server extends JPanel {
+
+
+public class Main extends JPanel {
 	static ArrayList<PrintWriter> clientList;
 	static ArrayList<Integer> clientID;
 	static ArrayList<TestRunnable> clientRunnable;
@@ -36,10 +40,14 @@ public class Server extends JPanel {
 	static JTextArea showUser;
 	JButton btnReset, btnScore;
 	static ServerSocket server;
-
-	public Server() throws IOException {
+	static Clip[] soundClip = new Clip[4];
+	static int soundIndex = 1;
+	
+	public Main() throws IOException {
+		
 		setGUI();
 		server = new ServerSocket(1256);
+		
 	}
 
 	public void setGUI() {
@@ -53,7 +61,30 @@ public class Server extends JPanel {
 		this.add(btnScore, BorderLayout.SOUTH);
 		this.setVisible(true);
 	}
+	public static void insertBGM(String sound) {
+		File soundFile = new File(sound);
+		AudioInputStream audioIn4 = null;
+		try {
+			audioIn4 = AudioSystem.getAudioInputStream(soundFile);
+			Clip clip2 = AudioSystem.getClip();
+			clip2.open(audioIn4);
+			clip2.start();
+				
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (UnsupportedAudioFileException e) {
+			e.printStackTrace();
+		} catch (LineUnavailableException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 
+
+
+	
 	public void startPlay() throws IOException {
 		while (true) {
 			System.out.println("Waiting for a Client ...");
@@ -74,7 +105,9 @@ public class Server extends JPanel {
 		clientID = new ArrayList<Integer>();
 		clientRunnable = new ArrayList<TestRunnable>();
 		JFrame mainFrame = new JFrame();
-		Server s = new Server();
+		Main s = new Main();
+		
+		
 		mainFrame.add(s);
 		mainFrame.setSize(new Dimension(400, 400));
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -96,7 +129,7 @@ public class Server extends JPanel {
 			this.id = id;
 			this.con = con;
 			System.out.println("Client #" + id + " is connected.");
-			Server.clientID.add(id);
+			Main.clientID.add(id);
 		}
 
 		public String echo(String msg) {
@@ -108,7 +141,7 @@ public class Server extends JPanel {
 		}
 
 		public void broadcast(String msg) {
-			for (PrintWriter p : Server.clientList) {
+			for (PrintWriter p : Main.clientList) {
 				p.println(msg);
 			}
 		}
@@ -117,18 +150,18 @@ public class Server extends JPanel {
 			int random = (int) (Math.random() * 1.99999);
 			if (random == 0) {
 				// you go 2nd
-				Server.clientList.get(pairId).println("TFirst");
+				Main.clientList.get(pairId).println("TFirst");
 				// opponent 1st
-				Server.clientList.get(id).println("TSecond");
+				Main.clientList.get(id).println("TSecond");
 			} else {
 				// you opponent last , you go first
-				Server.clientList.get(pairId).println("TSecond");
-				Server.clientList.get(id).println("TFirst");
+				Main.clientList.get(pairId).println("TSecond");
+				Main.clientList.get(id).println("TFirst");
 			}
 		}
 
 		public void sendToPair(String msg) {
-			Server.clientList.get(pairId).println(msg);
+			Main.clientList.get(pairId).println(msg);
 		}
 
 		@Override
@@ -150,45 +183,45 @@ public class Server extends JPanel {
 							sendToPair("ScoreCommandFromServer");
 						}
 					});
-					Server.clientList.add(out);
-					if (Server.numClients < 2) {
+					Main.clientList.add(out);
+					if (Main.numClients < 2) {
 						out.println("Waiting for Another Player");
 					}
-					if (Server.numClients == 2) {
-						Server.clientRunnable.get(0).setPairID(1);
-						Server.clientRunnable.get(1).setPairID(0);
+					if (Main.numClients == 2) {
+						Main.clientRunnable.get(0).setPairID(1);
+						Main.clientRunnable.get(1).setPairID(0);
 						// Start will synchronize the bombBoard
 						out.println("Start");
 						// Send random Turn
 						this.randomTurn();
 					}
-					Server.showUser
+					Main.showUser
 							.append("Client #" + id + " is connected.\n");
-					Server.showUser.append("Concurrent Online: " + numClients
+					Main.showUser.append("Concurrent Online: " + numClients
 							+ "\n");
 					BufferedReader in = new BufferedReader(
 							new InputStreamReader(con.getInputStream()));
-					while ((Server.inputLine = in.readLine()) != null) {
-						if (Server.inputLine.startsWith("F")) {
-							sendToPair(Server.inputLine);
-						} else if (Server.inputLine.equals("NextTurn")) {
+					while ((Main.inputLine = in.readLine()) != null) {
+						if (Main.inputLine.startsWith("F")) {
+							sendToPair(Main.inputLine);
+						} else if (Main.inputLine.equals("NextTurn")) {
 							sendToPair("TimeYourTurn");
-						} else if (Server.inputLine.startsWith("NAME:")) {
+						} else if (Main.inputLine.startsWith("NAME:")) {
 							// Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");
 							String temp = "Opponent"
-									+ Server.inputLine
-											.substring(Server.inputLine
+									+ Main.inputLine
+											.substring(Main.inputLine
 													.indexOf("NAME:") + 5);
 							sendToPair(temp);
-						} else if (Server.inputLine.equals("Reset")) {
-							sendToPair(Server.inputLine);
-						} else if (Server.inputLine.equals("#FinishReset"))
+						} else if (Main.inputLine.equals("Reset")) {
+							sendToPair(Main.inputLine);
+						} else if (Main.inputLine.equals("#FinishReset"))
 							this.randomTurn();
-						else if (Server.inputLine.startsWith("Score")) {
-							Server.showUser.append("===Update Score===\n"
-									+ Server.inputLine.substring(5) + "\n");
+						else if (Main.inputLine.startsWith("Score")) {
+							Main.showUser.append("===Update Score===\n"
+									+ Main.inputLine.substring(5) + "\n");
 						} else {
-							sendToPair(Server.inputLine);
+							sendToPair(Main.inputLine);
 						}
 					}
 					System.out.println("Client#" + id + " has left.");
@@ -203,10 +236,10 @@ public class Server extends JPanel {
 			System.out.println("Client #" + id + " has lost its connection.");
 			numClients--;
 			for (int i = 0; true; i++) {
-				if (Server.clientID.get(i) == id) {
-					Server.clientList.remove(i);
-					Server.clientID.remove(i);
-					Server.clientRunnable.remove(i);
+				if (Main.clientID.get(i) == id) {
+					Main.clientList.remove(i);
+					Main.clientID.remove(i);
+					Main.clientRunnable.remove(i);
 					broadcast("Client #" + id + " has left.");
 					return;
 				}
@@ -214,36 +247,5 @@ public class Server extends JPanel {
 		}
 	}
 
-	public static void insertBGM(String sound) {
-		File soundFile = new File(sound);
-		AudioInputStream audioIn4 = null;
-		try {
-			audioIn4 = AudioSystem.getAudioInputStream(soundFile);
-			Clip clip2 = AudioSystem.getClip();
-			clip2.open(audioIn4);
-			clip2.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	static Clip welcomeClip, gameClip;
-
-	public void createSound() {
-		File soundFile1 = new File("bensound-littleidea.wav");
-		File soundFile2 = new File("bgm2.wav");
-		AudioInputStream audioIn = null;
-		AudioInputStream audioIn2 = null;
-		try {
-			audioIn = AudioSystem.getAudioInputStream(soundFile1);
-			welcomeClip = AudioSystem.getClip();
-			welcomeClip.open(audioIn);
-			audioIn2 = AudioSystem.getAudioInputStream(soundFile2);
-			gameClip = AudioSystem.getClip();
-			gameClip.open(audioIn2);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+	
 }

@@ -24,7 +24,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	private JPanel bombGrid;
 	private JPanel gameHUD;
 	private JLabel timerLabel;
-	
+	boolean isMusicOn = true;
 	private JLabel playerName;
 	private JLabel opponentName;
 	private JLabel playerScore;
@@ -51,6 +51,10 @@ public class GameUIClient extends JPanel implements Runnable {
 	Thread outputThread;
 	private int totaltime = 0;
 	Image bgImage = null;
+	ImageIcon close;
+	ImageIcon open;
+	JComboBox musicList;
+	JButton closeMusicBtn;
 	///SERVER PART
 	boolean isServer;
 	ServerSocket server;
@@ -204,7 +208,12 @@ public class GameUIClient extends JPanel implements Runnable {
 		Image mineleft = null;
 		Image timerB = null;
 		Image secondsLeft = null;
+		ImageIcon clock = null;
+		Image closemusic = null;
+		Image openmusic = null;
 		try {
+			closemusic = ImageIO.read(new File("image/musicoff.gif"));
+			openmusic = ImageIO.read(new File("image/musicon.gif"));
 			home = ImageIO.read(new File("image/home.png"));
 			away = ImageIO.read(new File("image/away.png"));
 			scoreboard = ImageIO.read(new File("image/scoreboard.png"));
@@ -214,11 +223,15 @@ public class GameUIClient extends JPanel implements Runnable {
 			mineleft = ImageIO.read(new File("image/mineleft.gif"));
 			timerB = ImageIO.read(new File("image/timer.gif"));
 			secondsLeft = ImageIO.read(new File("image/secondsleft.gif"));
+			clock = new ImageIcon(new URL("file:/C:/Users/Waris/workspace/Netcentric/image/clock.gif"));
 		} catch (IOException e) {
 			System.out.println(e.toString());
-		}
+		} 
 		
 		JLabel playerBanner = new JLabel();
+		//clock = timerB.getScaledInstance(100, , arg2)
+		closemusic = closemusic.getScaledInstance(75, 75, Image.SCALE_SMOOTH);
+		openmusic = openmusic.getScaledInstance(75, 75, Image.SCALE_SMOOTH);
 		timerB = timerB.getScaledInstance(150, 60, Image.SCALE_SMOOTH);
 		totalmine = totalmine.getScaledInstance(150, 60, Image.SCALE_SMOOTH);
 		mineleft = mineleft.getScaledInstance(150, 60,Image.SCALE_SMOOTH);
@@ -354,7 +367,11 @@ public class GameUIClient extends JPanel implements Runnable {
 		
 		//TIMER LABEL
 		JPanel timerPanel = new JPanel();
+		JPanel timerTitlePanel = new JPanel(new GridLayout(2,1));
+		timerTitlePanel.setOpaque(false);
 		JLabel timerTitle = new JLabel();
+		JLabel timerGif = new JLabel(clock);
+		timerGif.setHorizontalAlignment(JLabel.CENTER);
 		timerTitle.setIcon(new ImageIcon(timerB));
 		timerTitle.setHorizontalAlignment(JLabel.CENTER);
 		JPanel secondPanel = new JPanel(new GridLayout(2,1));
@@ -369,13 +386,81 @@ public class GameUIClient extends JPanel implements Runnable {
 		secondPanel.add(timerLabel);
 		secondPanel.setOpaque(false);
 		timerPanel.setLayout(new GridLayout(1,2));
-		timerPanel.add(timerTitle);
+		timerPanel.add(timerTitlePanel);
 		timerPanel.add(secondPanel);
 		timerPanel.setOpaque(false);
 		minePanel.setOpaque(false);
+		timerTitlePanel.add(timerTitle);
+		timerTitlePanel.add(timerGif);
 		gameHUD.add(timerPanel);
 		gameHUD.add(minePanel);
 		createTimer();
+		
+		
+		
+		closeMusicBtn = new JButton();
+		close = new ImageIcon(closemusic);
+		open = new ImageIcon(openmusic);
+		closeMusicBtn.setIcon(close);
+		closeMusicBtn.setPreferredSize(new Dimension(75,75));
+		closeMusicBtn.setOpaque(false);
+		closeMusicBtn.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				if(isMusicOn){
+					isMusicOn = false;
+					closeMusicBtn.setIcon(open);
+					Main.insertBGM("clickS.wav");
+					Main.turnOffMusic();
+					
+				}else {
+					isMusicOn = true;
+					closeMusicBtn.setIcon(close);
+					Main.insertBGM("clickS.wav");
+					Main.turnOnMusic();
+				}
+			}
+			
+		});
+		JPanel musicPanel = new JPanel(new GridLayout(1,2));
+		musicPanel.setOpaque(false);
+		musicPanel.add(closeMusicBtn);
+		
+		String[] musicIndex = { "BGM1", "BGM2", "BGM3"};
+		musicList = new JComboBox(musicIndex);
+		musicList.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				String selected = (String)musicList.getSelectedItem();
+				switch(selected){
+				case "BGM1":
+					Main.turnOffMusic();
+					Main.soundIndex = 1;
+					Main.turnOnMusic();
+					break;
+				case "BGM2":
+					Main.turnOffMusic();
+					Main.soundIndex = 2;
+					Main.turnOnMusic();
+					break;
+				case "BGM3":
+					Main.turnOffMusic();
+					Main.soundIndex = 3;
+					Main.turnOnMusic();
+					break;
+				}
+			}
+			
+		});
+		musicPanel.add(musicList);
+		musicPanel.setPreferredSize(new Dimension(150,150));
+		gameHUD.add(musicPanel);
+			
+		
 	}
 	public void tempPromptName(){
 		String name = JOptionPane.showInputDialog("Please Input your name");
@@ -535,6 +620,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			this.turnTimer.stop();
 			result.setPlayerScore(this.player.getScore());
 			result.setAwayScore(this.opponent.getScore());
+			result.settotalTime(this.totaltime);
 			Object options[] = {"Quit", "Rematch"};
 			if(this.player.getScore()>this.opponent.getScore()){
 				result.setVictory(true);
@@ -619,7 +705,8 @@ public class GameUIClient extends JPanel implements Runnable {
 			}
 		} else {
 			this.timerLabel.setText("Wait");
-			this.totaltime = this.totaltime + seconds;
+			if(seconds < 0) seconds = 0;
+			this.totaltime = this.totaltime + (10-seconds);
 			
 			this.turnTimer.stop();
 			GameUIClient.seconds = 10;

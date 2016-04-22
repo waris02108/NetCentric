@@ -73,7 +73,7 @@ public class BombPanel extends JPanel{
 	}
 	
 	public void saEffect(){
-		Main.insertBGM("button-30.wav");
+		Main.insertBGM("sword_swipe.wav");
 		Executors.newSingleThreadExecutor().execute(new Runnable(){
 			@Override
 			
@@ -96,7 +96,7 @@ public class BombPanel extends JPanel{
 					g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 					g2d.setColor(Color.red);
 					//g2d.fillOval(0, 0, 50, 50);
-					g2d.drawImage(t, 0, 0, button.getWidth(),button.getHeight(), null);
+					g2d.drawImage(t, 0, 0, button.getWidth()-10,button.getHeight()-10, null);
 					alpha += 0.02f;
 					try {
 						Thread.sleep(40);

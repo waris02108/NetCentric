@@ -30,7 +30,9 @@ public class Main extends JPanel implements Runnable {
 	static MyMineWelcome welcome;
 	static GameState currentState = GameState.WELCOME;
 	static int mineCount = 0;
-	static Clip welcomeClip,gameClip;
+	
+	static Clip[] soundClip = new Clip[4];
+	public static int soundIndex = 1;
 	///IP + PORT
 	static String ip = "";
 	static String port ="";
@@ -62,13 +64,13 @@ public class Main extends JPanel implements Runnable {
 		if(currentState == GameState.WELCOME){
 			revalidate();
 			add(welcome);
-			welcomeClip.loop(-1);
+			soundClip[0].loop(-1);
 			mainFrame.setSize(welcome.getWidth(), welcome.getHeight());
 			repaint();
 		} else if (currentState == GameState.GAME_PLAYING_SERVER){
 			removeAll();
 			revalidate();
-			welcomeClip.stop();
+			soundClip[0].stop();
 			try {
 				gameController = new GameUIClient(true);
 			} catch (IOException e) {
@@ -76,7 +78,8 @@ public class Main extends JPanel implements Runnable {
 				e.printStackTrace();
 			}
 			add(gameController);
-			gameClip.loop(-1);
+			soundIndex = 1;
+			soundClip[soundIndex].loop(-1);
 			mainFrame.setSize(1000,875);
 			//gameController.setServer(true);
 			gameController.tempPromptName();
@@ -85,7 +88,7 @@ public class Main extends JPanel implements Runnable {
 		} else if(currentState == GameState.GAME_PLAYING_CLIENT){
 			removeAll();
 			revalidate();
-			welcomeClip.stop();
+			soundClip[0].stop();
 			try {
 				gameController = new GameUIClient(false);
 			} catch (IOException e) {
@@ -93,7 +96,8 @@ public class Main extends JPanel implements Runnable {
 				e.printStackTrace();
 			}
 			add(gameController);
-			gameClip.loop(-1);
+			soundIndex = 1;
+			soundClip[soundIndex].loop(-1);
 			mainFrame.setSize(1000,875);
 			//gameController.setServer(false);
 			gameController.tempPromptName();
@@ -181,21 +185,29 @@ public class Main extends JPanel implements Runnable {
 	public void createSound() {
 	
 		File soundFile1 = new File("bensound-littleidea.wav");
-	
 		File soundFile2 = new File("bgm2.wav");
+		File soundFile3 = new File("bensound-cute.wav");
+		File soundFile4 = new File("battle.wav");
 		AudioInputStream audioIn = null;
 		AudioInputStream audioIn2 = null;
-		
+		AudioInputStream audioIn3 = null;
+		AudioInputStream audioIn4 = null;
 		try {
 			audioIn = AudioSystem.getAudioInputStream(soundFile1);
-			welcomeClip = AudioSystem.getClip();
-			welcomeClip.open(audioIn);
+			soundClip[0] = AudioSystem.getClip();
+			soundClip[0].open(audioIn);
 			
 			audioIn2 = AudioSystem.getAudioInputStream(soundFile2);
-			gameClip = AudioSystem.getClip();
-			gameClip.open(audioIn2);
+			soundClip[1] = AudioSystem.getClip();
+			soundClip[1].open(audioIn2);
 			
+			audioIn3 = AudioSystem.getAudioInputStream(soundFile3);
+			soundClip[2] = AudioSystem.getClip();
+			soundClip[2].open(audioIn3);
 			
+			audioIn4 = AudioSystem.getAudioInputStream(soundFile4);
+			soundClip[3] = AudioSystem.getClip();
+			soundClip[3].open(audioIn4);
 			
 			
 		} catch (UnsupportedAudioFileException e) {
@@ -208,6 +220,13 @@ public class Main extends JPanel implements Runnable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+	}
+	public static void turnOnMusic(){
+		Main.soundClip[soundIndex].loop(-1);
+	}
+	public static void turnOffMusic(){
+		Main.soundClip[soundIndex].stop();
 		
 	}
 
